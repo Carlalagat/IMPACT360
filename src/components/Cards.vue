@@ -8,7 +8,7 @@
 
     <!-- Events List -->
     <div class="events-container">
-      <div v-for="(event, index) in events.slice(0, 3)" :key="index" class="event-card">
+      <div v-for="(event, index) in events.filter(isOngoingEvent)" :key="index" class="event-card">
         <img
           :src="event.thumbnail || '/images/default-event.jpg'"
           :alt="event.title"
@@ -20,9 +20,9 @@
           <h3 class="event-title">{{ event.title }}</h3>
           <p class="event-description">{{ truncateDescription(event.description, 100) }}</p>
           <button
-            v-if="event.link"
+            v-if="isOngoingEvent(event) && event.id"
             class="register-btn"
-            @click="goToLink(event.link)"
+            @click="goToLink(event.id)"
           >
             Register Now
           </button>
@@ -37,16 +37,28 @@
 
 <script>
 import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'vue-router';
+import { supabase } from '@/services/supabase.js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+//const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default {
   name: 'Cards',
+  setup() {
+    const router = useRouter();
+
+    return { router, supabase };
+  },
   methods: {
-    goToLink(url) {
-      window.open(url, '_blank');
+    async goToLink(eventId) {
+      this.router.push({ name: 'Ticket', params: { id: eventId } });
+    },
+    async signOut() {
+      const { error } = await supabase.auth.signOut()
+      if (error) console.error('Error signing out:', error)
+      this.router.push('/login')
     },
     handleImageError(event, index) {
       console.error(`Failed to load image for event ${index}: ${this.events[index].thumbnail}`);
@@ -60,6 +72,22 @@ export default {
       if (text.length <= maxLength) return text;
       return text.substring(0, maxLength) + '...';
     },
+    isOngoingEvent(event) {
+      if (!event || !event.date) {
+        console.warn(`Event ${event?.title || 'unknown'} has no valid date`);
+        return false;
+      }
+      const eventDate = new Date(event.date);
+      const currentDate = new Date();
+      // Set currentDate to start of day for comparison
+      currentDate.setHours(0, 0, 0, 0);
+      const isFutureOrToday = eventDate >= currentDate;
+      const isNotPostponed = event.status?.toLowerCase() !== 'postponed';
+      if (!event.status) {
+        console.warn(`Event ${event.title} has no status field; assuming ongoing if date is valid`);
+      }
+      return isFutureOrToday && isNotPostponed;
+    }
   },
   data() {
     return {
@@ -70,8 +98,7 @@ export default {
     const { data, error } = await supabase
       .from('events')
       .select('*')
-      .order('date', { ascending: false })
-      .limit(3);
+      .order('date', { ascending: false });
 
     if (error) {
       console.error('Error fetching events:', error);
