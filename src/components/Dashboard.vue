@@ -166,7 +166,7 @@
 <script>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import Chart from 'chart.js/auto';
+// import Chart from 'chart.js/auto';
 
 export default {
   name: 'AdminDashboard',

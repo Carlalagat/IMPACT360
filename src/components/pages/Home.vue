@@ -15,9 +15,10 @@
     </div>
     <!-- end of hero page -->
     <!-- Start of who we are section -->
+     <Cards />
   </div>
 
-  <Cards />
+  
 
 </template>
 
@@ -29,6 +30,7 @@ export default {
   components: {
     Cards,
   }
+  
 }
 </script>
 
