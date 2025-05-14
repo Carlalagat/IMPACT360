@@ -10,7 +10,7 @@
       <ul>
         <li><router-link to="/">Home</router-link></li>
         <li><router-link to="/about">About</router-link></li>
-        <li><router-link to="/events">Events</router-link></li>
+        <li><router-link to="/ongoingEvents">Ongoing Events</router-link></li>
         <li><router-link to="/i3-launchpad">I3 LAUNCHPAD</router-link></li>
         <li><router-link to="/blog">Blog</router-link></li>
         <li><router-link to="/contact">Contact</router-link></li>
@@ -29,7 +29,7 @@
       <ul>
         <li><router-link to="/" @click="closeMobileMenu">Home</router-link></li>
         <li><router-link to="/about" @click="closeMobileMenu">About</router-link></li>
-        <li><router-link to="/events" @click="closeMobileMenu">Events</router-link></li>
+        <li><router-link to="/ongoingEvents" @click="closeMobileMenu">Ongoing Events</router-link></li>
         <li><router-link to="/i3-launchpad" @click="closeMobileMenu">I3 LAUNCHPAD</router-link></li>
         <li><router-link to="/blog" @click="closeMobileMenu">Blog</router-link></li>
         <li><router-link to="/contact" @click="closeMobileMenu">Contact</router-link></li>
@@ -141,10 +141,11 @@ export default {
   display: flex;
   gap: 1rem;
 }
-
 .desktop-nav ul li {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
+  justify-items: center;
+  margin: auto;
   color: black;
   transition: all 0.3s ease-in-out;
 }
