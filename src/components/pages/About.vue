@@ -94,6 +94,19 @@
         <!-- Add more team cards as needed -->
       </div>
     </div>
+    <!-- Start of patnerships section -->
+     <div class="patnerships">
+      <h1>Our Patners</h1>
+      
+        <div class="patners-logo">
+          <img src="../../assets/ckc-logo.avif" alt="Patner 1" />
+        </div>
+        <div class="patner-info">
+          <h3>CKC Cares</h3>
+          <p>Empowering ethical, human-centered digital transformation</p>
+        </div>
+          
+     </div>
   </div>
   <!-- <Footer /> -->
 </template>
@@ -204,7 +217,36 @@ export default {
   flex-wrap: wrap;
   margin-top: 15px;
 }
-
+.patnerships {
+  padding: 20px 40px;
+  background-color: #EFEFEF;
+  color: black;
+  text-align: center;
+}
+.patnerships h1 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.patners-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+.patners-logo img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  /* border-radius: 50%; */
+}
+.patner-info h1 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
 /* Media query for larger screens */
 @media screen and (max-width: 780px) {
 
