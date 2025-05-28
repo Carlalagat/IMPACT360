@@ -141,7 +141,7 @@
 import { ref, computed, onMounted, getCurrentInstance } from 'vue';
 
 export default {
-  name: 'EventsView',
+  name: 'Events',
   setup() {
     const { appContext } = getCurrentInstance();
 

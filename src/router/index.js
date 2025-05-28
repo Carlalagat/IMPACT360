@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // Views
-import { HomeView, AboutView, ContactView } from '@/views'
+import { HomeView, AboutView, ContactView , I3LaunchpadView, OngoingEventsView} from '@/views'
 
 // Authentication pages
 import LoginPage from '@/components/LoginPage.vue'
@@ -16,42 +16,17 @@ import Dashboard from '@/components/Dashboard.vue'
 
 const routes = [
   // Public routes
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-  },
-  {
-    path: '/about',
-    name: 'about',
-    component: AboutView,
-  },
-  {
-    path: '/contact',
-    name: 'contact',
-    component: ContactView,
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: LoginPage,
-  },
-  {
-    path: '/register',
-    name: 'register',
-    component: RegisterPage,
-  },
-  {
-    path: '/forgot-password',
-    name: 'forgot-password',
-    component: ForgotPass,
-  },
+  { path: '/', name: 'home', component: HomeView,},
+  { path: '/about', name: 'about', component: AboutView,},
+  { path: '/contact', name: 'contact', component: ContactView,},
+  { path: '/I3Launchpad', name: 'I3Launchpad', component: I3LaunchpadView, },
+  { path: '/OngoingEvents', name: 'ongoingEvents', component: OngoingEventsView, },
+  { path: '/login', name: 'login', component: LoginPage,},
+  { path: '/register', name: 'register', component: RegisterPage, },
+  { path: '/forgot-password', name: 'forgot-password', component: ForgotPass, },
 
   // Protected admin section
-  {
-    path: '/admin',
-    name: 'admin',
-    component: Admin,
+  { path: '/admin', name: 'admin', component: Admin,
     children: [
       {
         path: 'dashboard',

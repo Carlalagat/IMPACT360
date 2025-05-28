@@ -16,9 +16,9 @@
               <h3>Quick Links</h3>
               <ul class="footer-links">
                 <li><RouterLink to="/about">About</RouterLink></li>
-                <li><RouterLink to="/events">Events</RouterLink></li>
-                <li><RouterLink to="/i3-launchpad">I3 Launchpad</RouterLink></li>
-                <li><RouterLink to="/blog">Blog</RouterLink></li>
+                <li><RouterLink to="/OngoingEvents">Events</RouterLink></li>
+                <li><RouterLink to="/I3Launchpad">I3 Launchpad</RouterLink></li>
+                <li><RouterLink to="#">Blog</RouterLink></li>
                 <li><RouterLink to="/contact">Contact</RouterLink></li>
               </ul>
             </div>
