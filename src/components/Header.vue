@@ -10,9 +10,9 @@
       <ul>
         <li><router-link to="/">Home</router-link></li>
         <li><router-link to="/about">About</router-link></li>
-        <li><router-link to="/ongoingEvents">Ongoing Events</router-link></li>
-        <li><router-link to="/i3-launchpad">I3 LAUNCHPAD</router-link></li>
-        <li><router-link to="/blog">Blog</router-link></li>
+        <li><router-link to="/OngoingEvents">Ongoing Events</router-link></li>
+        <li><router-link to="/I3Launchpad">I3 LAUNCHPAD</router-link></li>
+        <li><router-link to="#">Blog</router-link></li>
         <li><router-link to="/contact">Contact</router-link></li>
       </ul>
     </nav>
@@ -29,9 +29,9 @@
       <ul>
         <li><router-link to="/" @click="closeMobileMenu">Home</router-link></li>
         <li><router-link to="/about" @click="closeMobileMenu">About</router-link></li>
-        <li><router-link to="/ongoingEvents" @click="closeMobileMenu">Ongoing Events</router-link></li>
-        <li><router-link to="/i3-launchpad" @click="closeMobileMenu">I3 LAUNCHPAD</router-link></li>
-        <li><router-link to="/blog" @click="closeMobileMenu">Blog</router-link></li>
+        <li><router-link to="/OngoingEvents" @click="closeMobileMenu">Ongoing Events</router-link></li>
+        <li><router-link to="/I3Launchpad" @click="closeMobileMenu">I3 LAUNCHPAD</router-link></li>
+        <li><router-link to="#" @click="closeMobileMenu">Blog</router-link></li>
         <li><router-link to="/contact" @click="closeMobileMenu">Contact</router-link></li>
       </ul>
     </div>
