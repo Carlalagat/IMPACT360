@@ -1,15 +1,15 @@
-import './assets/main.css'
 import { createApp } from 'vue'
-import App from './App.vue'
+import { createPinia } from 'pinia'
 import router from './router'
+import App from './App.vue'
 import '@fortawesome/fontawesome-free/css/all.css'
-import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-const supabase = createClient(supabaseUrl, supabaseKey)
+/**styling */
+import './assets/main.css'
 
 const app = createApp(App)
-app.config.globalProperties.$supabase = supabase
-app.use(router).mount('#app')
+const pinia = createPinia()
+
+app.use(pinia)
+app.use(router)
+app.mount('#app')

@@ -1,286 +1,88 @@
 <template>
-  <div class="ticket-card-container">
-    <div v-if="showConfirmation" class="confirmation-modal">
-      <div class="confirmation-content">
-        <div class="confirmation-header">
-          <i class="fas fa-check-circle"></i>
-          <h2>Ticket Request Sent!</h2>
-        </div>
-        <div class="confirmation-body">
-          <p>
-            Please check your phone for the M-Pesa STK push prompt to complete payment.
-            Once payment is confirmed, your ticket will be sent to your email.
-          </p>
-          <button @click="showConfirmation = false" class="close-btn">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-2xl font-bold">Buy a Ticket</h1>
 
-    <div v-if="error" class="error-message">
-      <p>{{ error }}</p>
-    </div>
-
-    <div v-else-if="!event" class="loading-message">
-      <p>Loading event details...</p>
-    </div>
-
-    <div v-else class="ticket-card">
-      <!-- Event Header -->
-      <div class="ticket-header">
-        <h1>{{ event.title }}</h1>
-        <div class="ticket-badge">Available</div>
+    <form @submit.prevent="simulateStkPush" class="space-y-4">
+      <div>
+        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+        <input
+          v-model="formData.fullName"
+          type="text"
+          id="fullName"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          required
+        />
       </div>
 
-      <!-- Event Thumbnail -->
-      <div class="ticket-thumbnail">
-        <img :src="event.thumbnail || '/images/default-event.jpg'" :alt="event.title" @error="handleImageError" />
+      <div>
+        <label for="phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+        <input
+          v-model="formData.phoneNumber"
+          type="tel"
+          id="phoneNumber"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          required
+        />
       </div>
 
-      <!-- Event Details -->
-      <div class="ticket-details">
-        <div class="ticket-info">
-          <div class="info-item">
-            <i class="fas fa-calendar-alt"></i>
-            <div>
-              <span class="info-label">Date & Time</span>
-              <span class="info-value">{{ formatDate(event.date) }}</span>
-            </div>
-          </div>
-
-          <div class="info-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <div>
-              <span class="info-label">Location</span>
-              <span class="info-value">{{ event.location }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="ticket-description">
-          <h3>Event Details</h3>
-          <p>{{ event.description }}</p>
-        </div>
-
-        <!-- Price -->
-        <div class="ticket-price">
-          <span class="price-label">Ticket Price</span>
-          <span class="price-value">KSH {{ formatPrice(event.price) }}</span>
-        </div>
-
-        <!-- Applicant Information Form -->
-        <div class="ticket-form">
-          <div class="form-group">
-            <label for="name">Full Name</label>
-            <input
-              type="text"
-              id="name"
-              v-model="formData.name"
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              v-model="formData.email"
-              placeholder="Enter your email address"
-              required
-            />
-            <small>Your ticket will be sent to this email</small>
-          </div>
-
-          <div class="form-group">
-            <label for="phoneNumber">Phone Number (M-Pesa)</label>
-            <div class="phone-input">
-              <span class="country-code">+254</span>
-              <input
-                type="tel"
-                id="phoneNumber"
-                v-model="formData.phoneNumber"
-                placeholder="7XXXXXXXX"
-                pattern="^[7|1][0-9]{8}$"
-                required
-              />
-            </div>
-            <small>Enter without leading zero, e.g. 712345678</small>
-          </div>
-
-          <button
-            @click="initiatePayment"
-            class="grab-ticket-btn"
-            :disabled="isProcessing"
-          >
-            <span v-if="isProcessing">
-              <div class="spinner-small"></div> Processing...
-            </span>
-            <span v-else>
-              <i class="fas fa-ticket-alt"></i> Secure Ticket for KSH {{ formatPrice(event.price) }}
-            </span>
-          </button>
-
-          <p class="secure-note">
-            <i class="fas fa-shield-alt"></i> You'll receive an STK push to complete payment
-          </p>
-        </div>
+      <div>
+        <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+        <input
+          v-model.number="formData.amount"
+          type="number"
+          id="amount"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          required
+        />
       </div>
-    </div>
+
+      <button
+        type="submit"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md"
+      >
+        Pay with M-Pesa
+      </button>
+    </form>
   </div>
 </template>
 
-<script>
-import { supabase } from '@/services/supabase.js';
-import { useRoute } from 'vue-router';
+<script setup>
+import { reactive } from 'vue'
 
-export default {
-  name: 'TicketCard',
-  setup() {
-    const route = useRoute();
-    return { route, supabase };
-  },
-  data() {
-    return {
-      event: null,
-      formData: {
-        name: '',
-        email: '',
-        phoneNumber: ''
-      },
-      isProcessing: false,
-      showConfirmation: false,
-      error: null
-    };
-  },
-  async created() {
-    await this.fetchEventData();
-  },
-  methods: {
-    async fetchEventData() {
-      try {
-        const eventId = this.route.params.id;
-        if (!eventId) {
-          throw new Error('Event ID is missing in route parameters');
-        }
+const formData = reactive({
+  fullName: '',
+  phoneNumber: '',
+  amount: 0
+})
 
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', eventId)
-          .single();
-
-        if (error) {
-          throw new Error(`Failed to fetch event: ${error.message}`);
-        }
-
-        if (!data) {
-          throw new Error('Event not found');
-        }
-
-        this.event = {
-          id: data.id,
-          title: data.title,
-          thumbnail: data.thumbnail,
-          date: data.date,
-          description: data.description,
-          price: data.price,
-          location: data.location
-        };
-      } catch (err) {
-        this.error = err.message;
-        console.error('Error fetching event data:', err);
-      }
-    },
-    handleImageError(event) {
-      console.error(`Failed to load image: ${this.event.thumbnail}`);
-      this.event.thumbnail = '/images/default-event.jpg';
-    },
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      };
-      return date.toLocaleDateString('en-US', options);
-    },
-    formatPrice(price) {
-      return price.toLocaleString('en-US');
-    },
-    validateForm() {
-      if (!this.formData.name || !this.formData.email || !this.formData.phoneNumber) {
-        alert('Please fill in all required fields');
-        return false;
-      }
-
-      const phonePattern = /^[7|1][0-9]{8}$/;
-      if (!phonePattern.test(this.formData.phoneNumber)) {
-        alert('Please enter a valid phone number starting with 7 or 1 followed by 8 digits');
-        return false;
-      }
-
-      return true;
-    },
-    async initiatePayment() {
-      if (!this.validateForm()) return;
-
-      this.isProcessing = true;
-      this.error = null;
-
-      try {
-        // Simulate STK push request to M-Pesa
-        const phoneNumber = `254${this.formData.phoneNumber}`; // Format phone number
-        const amount = this.event.price;
-        const accountReference = `TICKET_${this.event.id}_${Date.now()}`; // Unique reference
-        const transactionDesc = `Payment for ${this.event.title}`;
-
-        // Mock API call to M-Pesa STK push (replace with real API in production)
-        const response = await this.simulateStkPush(phoneNumber, amount, accountReference, transactionDesc);
-
-        if (response.success) {
-          this.showConfirmation = true;
-          console.log('STK Push initiated:', response);
-        } else {
-          throw new Error(response.message || 'Failed to initiate STK push');
-        }
-      } catch (err) {
-        this.error = err.message || 'An error occurred during payment initiation';
-        console.error('Payment error:', err);
-      } finally {
-        this.isProcessing = false;
-      }
-    },
-    async simulateStkPush(phoneNumber, amount, accountReference, transactionDesc) {
-      // Simulated STK push response (mocks M-Pesa API behavior)
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // Simulate success or failure randomly for demo purposes
-          const isSuccess = Math.random() > 0.2; // 80% success rate
-          if (isSuccess) {
-            resolve({
-              success: true,
-              message: `STK push sent to ${phoneNumber} for KSH ${amount}`,
-              checkoutRequestID: `ws_CO_${Date.now()}`
-            });
-          } else {
-            resolve({
-              success: false,
-              message: 'Insufficient funds or invalid phone number'
-            });
-          }
-        }, 2000); // Simulate network delay
-      });
-    }
+const simulateStkPush = async () => {
+  if (!formData.phoneNumber || !formData.amount) {
+    alert('Please fill in all required fields.')
+    return
   }
-};
+
+  try {
+    const response = await fetch('http://localhost:3000/stkPush', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+
+    const data = await response.json()
+
+    if (response.ok) {
+      alert('STK Push initiated. Check your phone to complete the payment.')
+    } else {
+      console.error(data)
+      alert('Error: ' + data.message)
+    }
+  } catch (err) {
+    console.error(err)
+    alert('Failed to initiate payment. Try again later.')
+  }
+}
 </script>
+
 
 <style scoped>
 /* Existing styles remain unchanged */

@@ -147,7 +147,6 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { supabase } from '@/services/supabase';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 export default {
@@ -187,29 +186,9 @@ export default {
         tomorrow.setHours(10, 0, 0, 0);
         event.value.date = tomorrow.toISOString().slice(0, 16);
       } else {
-        fetchEventData(eventId.value);
+        fetchEventData(eventId.value); // You can define your own fetchEventData logic
       }
     });
-
-    const fetchEventData = async (id) => {
-      try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-
-        event.value = { ...data };
-        event.value.date = data.date.substring(0, 16);
-        thumbnailPreview.value = data.thumbnail;
-      } catch (error) {
-        console.error('Error fetching event:', error);
-        alert('Error fetching event data. Please try again.');
-        router.push('/admin/events');
-      }
-    };
 
     const resizeImage = (file, maxWidth, maxHeight, quality = 0.8) => {
       return new Promise((resolve, reject) => {
@@ -220,7 +199,6 @@ export default {
           let width = img.width;
           let height = img.height;
 
-          // Calculate new dimensions while maintaining aspect ratio
           if (width > height) {
             if (width > maxWidth) {
               height = Math.round((height * maxWidth) / width);
@@ -276,7 +254,6 @@ export default {
       }
 
       try {
-        // Resize image to max 800x600
         const resizedFile = await resizeImage(file, 800, 600);
         thumbnailPreview.value = URL.createObjectURL(resizedFile);
         event.value.thumbnail = resizedFile;
@@ -287,39 +264,12 @@ export default {
     };
 
     const uploadImage = async () => {
-      if (!event.value.thumbnail) {
-        uploadError.value = 'Please select a thumbnail image';
-        return null;
-      }
-
+      isUploading.value = true;
       try {
-        isUploading.value = true;
-        const file = event.value.thumbnail;
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${event.value.title}-${Date.now()}.${fileExt}`;
-
-        const { data, error } = await supabase.storage
-          .from('event-thumbnails')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (error) {
-          if (error.message.includes('Bucket not found')) {
-            uploadError.value = 'Storage bucket not found. Please create a bucket named "event-thumbnails" in your Supabase dashboard.';
-          } else {
-            uploadError.value = `Upload failed: ${error.message}`;
-          }
-          throw error;
-        }
-
+        const mockUrl = URL.createObjectURL(event.value.thumbnail); // Simulated uploaded URL
+        return mockUrl;
+      } finally {
         isUploading.value = false;
-        return supabase.storage.from('event-thumbnails').getPublicUrl(data.path).data.publicUrl;
-      } catch (error) {
-        isUploading.value = false;
-        console.error('Upload error:', error);
-        return null;
       }
     };
 
@@ -360,19 +310,11 @@ export default {
           thumbnail: imageUrl,
         };
 
-        let query = supabase.from('events');
+        console.log(`[${isEditing.value ? 'PUT' : 'POST'}] Sending event to backend:`, eventData);
 
-        if (isEditing.value) {
-          query = query.update(eventData).eq('id', eventId.value);
-        } else {
-          query = query.insert([eventData]);
-        }
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const { data, error } = await query.select();
-
-        if (error) throw error;
-
-        console.log('Event saved successfully:', data);
         alert(`Event ${isEditing.value ? 'updated' : 'created'} successfully!`);
         router.push('/admin/events');
       } catch (error) {

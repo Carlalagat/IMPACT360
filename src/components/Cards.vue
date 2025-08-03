@@ -36,29 +36,22 @@
 </template>
 
 <script>
-import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'vue-router';
-import { supabase } from '@/services/supabase.js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-// const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default {
   name: 'Cards',
   setup() {
     const router = useRouter();
-
-    return { router, supabase };
+    return { router };
+  },
+  data() {
+    return {
+      events: [],
+    };
   },
   methods: {
     async goToLink(eventId) {
-      this.router.push({ name: 'Ticket', params: { id: eventId } });
-    },
-    async signOut() {
-      const { error } = await supabase.auth.signOut()
-      if (error) console.error('Error signing out:', error)
-      this.router.push('/login')
+      this.router.push({ name: 'register', params: { id: eventId } });
     },
     handleImageError(event, index) {
       console.error(`Failed to load image for event ${index}: ${this.events[index].thumbnail}`);
@@ -79,7 +72,6 @@ export default {
       }
       const eventDate = new Date(event.date);
       const currentDate = new Date();
-      // Set currentDate to start of day for comparison
       currentDate.setHours(0, 0, 0, 0);
       const isFutureOrToday = eventDate >= currentDate;
       const isNotPostponed = event.status?.toLowerCase() !== 'postponed';
@@ -87,28 +79,43 @@ export default {
         console.warn(`Event ${event.title} has no status field; assuming ongoing if date is valid`);
       }
       return isFutureOrToday && isNotPostponed;
+    },
+    async fetchEvents() {
+      try {
+        console.log('[FETCHING EVENTS] Simulating backend fetch...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        this.events = [
+          {
+            id: 1,
+            title: 'Startup Night 2025',
+            date: '2025-08-20T18:00:00Z',
+            description: 'Join us for a night of pitches, networking, and innovation.',
+            location: 'New York City',
+            status: 'active',
+            thumbnail: null,
+          },
+          {
+            id: 2,
+            title: 'Tech for Impact',
+            date: '2025-07-15T10:00:00Z',
+            description: 'Explore how technology can drive social change.',
+            location: 'San Francisco',
+            status: 'postponed',
+            thumbnail: null,
+          },
+        ];
+      } catch (err) {
+        console.error('[EVENTS ERROR]', err);
+      }
     }
-  },
-  data() {
-    return {
-      events: [],
-    };
   },
   async mounted() {
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('date', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching events:', error);
-    } else {
-      this.events = data;
-      console.log('Event thumbnails:', this.events.map(e => e.thumbnail));
-    }
+    await this.fetchEvents();
   },
 };
 </script>
+
 
 <style scoped>
 .Cards {
